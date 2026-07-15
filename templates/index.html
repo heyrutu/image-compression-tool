@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div class="hero-copy">
+      <p class="eyebrow">JPEG · PNG · WEBP · BMP</p>
+      <h1>Shrink your images.<br>Keep the detail.</h1>
+      <p class="hero-sub">
+        PixelPress compresses your photos block by block — the same way JPEG
+        encoding does — so you get smaller files for email, the web, and
+        social media without a visible hit to quality.
+      </p>
+      <div class="hero-actions">
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">Go to dashboard</a>
+        {% else %}
+          <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Create free account</a>
+          <a href="{{ url_for('login') }}" class="btn btn-ghost btn-lg">Log in</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="block-grid" id="blockGrid"></div>
+      <div class="hero-visual-caption">
+        <span class="mono">4.8 MB</span>
+        <svg width="28" height="14" viewBox="0 0 28 14" fill="none"><path d="M1 7H27M27 7L21 1M27 7L21 13" stroke="currentColor" stroke-width="1.5"/></svg>
+        <span class="mono accent">612 KB</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section how-it-works">
+  <div class="wrap">
+    <h2>How it works</h2>
+    <div class="steps">
+      <div class="step">
+        <span class="step-index mono">01</span>
+        <h3>Upload</h3>
+        <p>Drag in a JPEG, PNG, WEBP, or BMP file up to 20 MB from your device.</p>
+      </div>
+      <div class="step">
+        <span class="step-index mono">02</span>
+        <h3>Set your quality</h3>
+        <p>Pick how much to compress — higher quality keeps more detail, lower quality means a smaller file.</p>
+      </div>
+      <div class="step">
+        <span class="step-index mono">03</span>
+        <h3>Download</h3>
+        <p>Get the compressed image instantly, with the exact bytes saved shown next to the original.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section features">
+  <div class="wrap">
+    <h2>Built for everyday image work</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3>Format-aware compression</h3>
+        <p>JPEG uses quality-based re-encoding, PNG uses palette reduction and compression level, WEBP uses its native quality codec — each format is handled the way it's meant to be.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Your own history</h3>
+        <p>Every upload is saved to your account with original size, compressed size, and percent saved, so you can track it over time.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Optional resizing</h3>
+        <p>Cap large photos at 1920px on their longest side for extra savings when you don't need full resolution.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Private accounts</h3>
+        <p>Your images and history are tied to your login and only visible to you.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

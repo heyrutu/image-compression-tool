@@ -1,0 +1,15 @@
+# Python temporary files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE configurations
+.vscode/
+
+# Testing caches
+.pytest_cache/
+
+# Environment files (if you create any later)
+.env
+venv/
+ENV/

@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — PixelPress{% endblock %}
+{% block content %}
+
+<section class="section dashboard-head">
+  <div class="wrap">
+    <h1>Your compression history</h1>
+    <div class="summary-row">
+      <div class="summary-card">
+        <span class="summary-label">Images compressed</span>
+        <span class="summary-value mono">{{ images|length }}</span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Original total</span>
+        <span class="summary-value mono">{{ total_original|human_size }}</span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Compressed total</span>
+        <span class="summary-value mono accent">{{ total_compressed|human_size }}</span>
+      </div>
+      <div class="summary-card summary-card-highlight">
+        <span class="summary-label">Space saved</span>
+        <span class="summary-value mono accent">{{ total_saved|human_size }}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <form class="upload-card" method="POST" action="{{ url_for('upload') }}" enctype="multipart/form-data" id="uploadForm">
+      <div class="dropzone" id="dropzone">
+        <input type="file" name="image" id="fileInput" accept=".jpg,.jpeg,.png,.webp,.bmp" required>
+        <div class="dropzone-copy">
+          <p class="dropzone-title">Drop an image here, or <span class="link-text">browse</span></p>
+          <p class="dropzone-hint mono" id="fileName">JPEG · PNG · WEBP · BMP — up to 20 MB</p>
+        </div>
+      </div>
+
+      <div class="upload-controls">
+        <div class="control">
+          <label for="quality">Quality <span class="mono" id="qualityValue">75</span></label>
+          <input type="range" id="quality" name="quality" min="10" max="95" value="75">
+          <div class="range-labels"><span>Smaller file</span><span>Higher quality</span></div>
+        </div>
+
+        <label class="checkbox-row">
+          <input type="checkbox" name="shrink_large" checked>
+          Cap resolution at 1920px for extra savings
+        </label>
+
+        <button type="submit" class="btn btn-primary btn-block" id="uploadBtn">Compress image</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    {% if images %}
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>File</th>
+            <th>Original</th>
+            <th>Compressed</th>
+            <th>Saved</th>
+            <th>Quality</th>
+            <th>Uploaded</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for img in images %}
+          <tr>
+            <td class="filename-cell">{{ img.original_filename }}</td>
+            <td class="mono">{{ img.original_size|human_size }}</td>
+            <td class="mono accent">{{ img.compressed_size|human_size }}</td>
+            <td class="mono saved-cell">−{{ img.percent_saved }}%</td>
+            <td class="mono">{{ img.quality }}</td>
+            <td class="mono">{{ img.uploaded_at.strftime('%d %b %Y') }}</td>
+            <td class="row-actions">
+              <a href="{{ url_for('download', image_id=img.id) }}" class="btn btn-ghost btn-sm">Download</a>
+              <form method="POST" action="{{ url_for('delete', image_id=img.id) }}" onsubmit="return confirm('Delete this image?');">
+                <button type="submit" class="btn btn-ghost btn-sm btn-danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="empty-state">
+        <p>Nothing compressed yet. Upload your first image above to see it here.</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.getElementById('quality').addEventListener('input', function () {
+    document.getElementById('qualityValue').textContent = this.value;
+  });
+</script>
+{% endblock %}
