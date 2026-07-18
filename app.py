@@ -28,23 +28,30 @@ from werkzeug.utils import secure_filename
 from PIL import Image
 
 # ---------------------------------------------------------------------------
-# App & config
+# App & config (Render Persistent Storage Configuration)
 # ---------------------------------------------------------------------------
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-UPLOAD_DIR = os.path.join(BASE_DIR, "static", "uploads")
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp", "bmp"}
 MAX_CONTENT_LENGTH = 20 * 1024 * 1024  # 20 MB per upload
+
+# Check if running on Render environment
+IS_RENDER = os.environ.get("RENDER") == "true"
+
+if IS_RENDER:
+    # Use the persistent disk paths mapped on Render
+    UPLOAD_DIR = "/data/uploads"
+    DB_PATH = "/data/app.db"
+else:
+    # Use local project paths for development environment
+    UPLOAD_DIR = os.path.join(BASE_DIR, "static", "uploads")
+    DB_PATH = os.path.join(BASE_DIR, "instance", "app.db")
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me")
 
-# --- Database ---------------------------------------------------------------
-# SQLite is used out of the box so the project runs anywhere with zero setup.
-# To use MySQL instead (as listed in the project synopsis), install
-# PyMySQL/mysqlclient and swap the URI below, e.g.:
-#   mysql+pymysql://<user>:<password>@localhost/image_compression_db
+# Database URI routing based on our environment selection
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
-    "DATABASE_URL", f"sqlite:///{os.path.join(BASE_DIR, 'instance', 'app.db')}"
+    "DATABASE_URL", f"sqlite:///{DB_PATH}"
 )
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
@@ -56,8 +63,10 @@ login_manager.login_view = "login"
 login_manager.login_message = "Please log in to access your dashboard."
 login_manager.login_message_category = "info"
 
+# Explicitly ensure the storage directories exist
 os.makedirs(UPLOAD_DIR, exist_ok=True)
-os.makedirs(os.path.join(BASE_DIR, "instance"), exist_ok=True)
+if not IS_RENDER:
+    os.makedirs(os.path.join(BASE_DIR, "instance"), exist_ok=True)
 
 
 # ---------------------------------------------------------------------------
