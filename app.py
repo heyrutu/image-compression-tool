@@ -31,43 +31,51 @@ from PIL import Image
 # App & config (Render Persistent Storage Configuration)
 # ---------------------------------------------------------------------------
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp", "bmp"}
-MAX_CONTENT_LENGTH = 20 * 1024 * 1024  # 20 MB per upload
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp", "bmp"}[cite: 2]
+MAX_CONTENT_LENGTH = 20 * 1024 * 1024  # 20 MB per upload[cite: 2]
 
 # Check if running on Render environment
 IS_RENDER = os.environ.get("RENDER") == "true"
 
 if IS_RENDER:
     # Use the persistent disk paths mapped on Render
+    # Note: If the root /data has strict mount rules, Render allows sub-folder generation
     UPLOAD_DIR = "/data/uploads"
     DB_PATH = "/data/app.db"
 else:
     # Use local project paths for development environment
-    UPLOAD_DIR = os.path.join(BASE_DIR, "static", "uploads")
-    DB_PATH = os.path.join(BASE_DIR, "instance", "app.db")
+    UPLOAD_DIR = os.path.join(BASE_DIR, "static", "uploads")[cite: 2]
+    DB_PATH = os.path.join(BASE_DIR, "instance", "app.db")[cite: 2]
 
-app = Flask(__name__)
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me")
+app = Flask(__name__)[cite: 2]
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me")[cite: 2]
 
 # Database URI routing based on our environment selection
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get([cite: 2]
     "DATABASE_URL", f"sqlite:///{DB_PATH}"
 )
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False[cite: 2]
+app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH[cite: 2]
 
-db = SQLAlchemy(app)
+db = SQLAlchemy(app)[cite: 2]
 
-login_manager = LoginManager(app)
-login_manager.login_view = "login"
-login_manager.login_message = "Please log in to access your dashboard."
-login_manager.login_message_category = "info"
+login_manager = LoginManager(app)[cite: 2]
+login_manager.login_view = "login"[cite: 2]
+login_manager.login_message = "Please log in to access your dashboard."[cite: 2]
+login_manager.login_message_category = "info"[cite: 2]
 
-# Explicitly ensure the storage directories exist
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+# Safe Directory Initialization with try-except to catch permission edge cases
+try:
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+except PermissionError:
+    # Fallback to local working directory structure if Render volume isn't ready
+    UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
+    DB_PATH = os.path.join(BASE_DIR, "app.db")
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DB_PATH}"
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+
 if not IS_RENDER:
-    os.makedirs(os.path.join(BASE_DIR, "instance"), exist_ok=True)
-
+    os.makedirs(os.path.join(BASE_DIR, "instance"), exist_ok=True)[cite: 2]
 
 # ---------------------------------------------------------------------------
 # Models
